@@ -52,7 +52,6 @@ if __name__ == '__main__': # only execute if file invoked from the command-line,
     api_key = os.environ.get("ALPHAVANTAGE_API_KEY") or "OOPS. Please set an environment variable named 'ALPHAVANTAGE_API_KEY'."
 #    print(api_key)
 
-    symbol_list = input("Please input a stock symbol, or a list of stock symbol seperated by comma: ").split(",")
     risk_input = input("Please indicate your risk tolerance level (low, medium, high): ")
     if risk_input == "low":
         risk_level = 1.0
@@ -60,6 +59,10 @@ if __name__ == '__main__': # only execute if file invoked from the command-line,
         risk_level = 1.3
     if risk_input == "high":
         risk_level = 1.5
+    if risk_input != "low" and risk_input != "medium" and risk_input != "high":
+        quit("unrecognized input")
+    symbol_list = input("Please input a stock symbol, or a list of stock symbol seperated by comma: ").split(",")
+
     for symbol in symbol_list:
 #            symbol = input("Please input a stock symbol (e.g. 'NFLX') or enter 'quit' to quit the program: ") # input("Please input a stock symbol (e.g. 'NFLX'): ")
         symbol = symbol.strip()
@@ -68,11 +71,12 @@ if __name__ == '__main__': # only execute if file invoked from the command-line,
             print("You have now quit the program.")
             break
         elif len(symbol) > 8:
-            quit("check your symbol again, must be less than 8 characters/letters")
+            print("check your symbol again, must be less than 8 characters/letters")
+            pass
         else:
             try:
                 float(symbol)
-                quit("check your symbol again, must be non-numeric")
+                quit(f"Symbol {symbol} is numeric. Stock symbols must be non-numeric")
             except Exception as e:
                 pass
             # VALIDATE SYMBOL AND PREVENT UNECESSARY REQUESTS
@@ -87,7 +91,7 @@ if __name__ == '__main__': # only execute if file invoked from the command-line,
 
             response = requests.get(request_url)
             if "Error Message" in response.text:
-                print("Sorry, couldn't find any trading data for that stock symbol")
+                print("Sorry, one or more of your entered stock symbols cannot be found, please check again")
                 quit("Quit program...")
             # VALIDATE RESPONSE AND HANDLE ERRORS
             # ... todo
@@ -104,6 +108,7 @@ if __name__ == '__main__': # only execute if file invoked from the command-line,
         #   print(last_trading_date_prices)
 
             last_trading_date = last_trading_date_prices["date"]
+
 
             print(f"Stock: {symbol}")
             print(f"Run at {datetime.datetime.now().time()} on {datetime.date.today()}")
